@@ -7,6 +7,10 @@
  * 
  * Native MIDI Device, hardware arduino micro + TLP281 4x optocoupler board
  * to be connected to Flokason StuKa Pitch98-13 breakout box
+ * 
+ * TODO: rewrite and use MIDI_NOTE : PIN function table
+ * TODO: loop mode
+ * GOAL: bidirectional communication with DAW plugin
  */ 
 
 #include "MIDIUSB.h"
@@ -28,6 +32,11 @@ const uint8_t START_NOTE  = 0x11; //F-1
 const uint8_t STOP_NOTE   = 0x10; //E-1
 const uint8_t FAST_NOTE   = 0x0E; //D-1
 const uint8_t MARK_NOTE   = 0x0C; //C-1
+const uint8_t LOOP_NOTE   = 0x13; //G-1 starts the loop mode: start, wait one revolution, stop
+
+//adjust to your actual hardware: MS_PER_REVOLUTION - TIME_TO_LOWER_HEAD + TIME_TO_LIFT_HEAD 
+const int REVOLUTION_TIME_33 = 1800; //1800 ms = 33,33 RPM
+const int LOOP_MARK_TIME = 1000; //move the cutterhead forward after cutting locked groove
 
 void setup() {
   
@@ -45,12 +54,21 @@ void setup() {
   Serial.begin(115200);
 }
 
+//print debug messages on Serial output
+void dprintln(char str[]){
+  if (debug_level) {
+    Serial.print(str);
+    Serial.print("\n");
+  }
+}
+
+
 void loop() {
   midiEventPacket_t rx;
   do {
     rx = MidiUSB.read();
     if (rx.header != 0) {
-      if (debug_level) {
+      if (debug_level>1) {
         Serial.print("Received: ");
         Serial.print(rx.header, HEX);
         Serial.print("-");
@@ -66,20 +84,31 @@ void loop() {
         switch (rx.byte2) {
           case MARK_NOTE:
             digitalWrite(MARK_PIN, HIGH);
-            if (debug_level) {Serial.print("MARK ON");}
+            dprintln("MARK ON");
           break;
           case START_NOTE:
             digitalWrite(START_PIN, HIGH);
-            if (debug_level) {Serial.print("START ON");}
+            dprintln("START ON");
           break;
           case FAST_NOTE:
             digitalWrite(FAST_PIN, HIGH);
-            if (debug_level) {Serial.print("FAST ON");}
+            dprintln("FAST ON");
           break;
           case STOP_NOTE:
             digitalWrite(STOP_PIN, HIGH);
-            if (debug_level) {Serial.print("STOP ON");}
+            dprintln("STOP ON");
           break;
+          case LOOP_NOTE:
+            dprintln("LOOP START");
+            digitalWrite(START_PIN,HIGH); //start cutting
+            delay(REVOLUTION_TIME_33); //wait for one revolution 33RPM
+            dprintln("LOOP STOP");
+            digitalWrite(START_PIN,LOW);
+            dprintln("MARK BETWEEN LOOP ON");
+            digitalWrite(MARK_PIN, HIGH);
+            dprintln("MARK BETWEEN LOOP OFF");
+            delay(LOOP_MARK_TIME); //move cutterhead forward certain time TODO: pitch optimize locked grooves for space effiency
+            digitalWrite(MARK_PIN, LOW); //ready for next locked groove
        }
       }
       
@@ -88,19 +117,19 @@ void loop() {
         switch (rx.byte2) {
           case MARK_NOTE:
             digitalWrite(MARK_PIN, LOW);
-            if (debug_level) {Serial.print("MARK OFF");}
+            dprintln("MARK OFF");
           break;
           case START_NOTE:
             digitalWrite(START_PIN, LOW);
-            if (debug_level) {Serial.print("START OFF");}
+            dprintln("START OFF");
           break;
           case FAST_NOTE:
             digitalWrite(FAST_PIN, LOW);
-            if (debug_level) {Serial.print("FAST OFF");}
+            dprintln("FAST OFF");
           break;
           case STOP_NOTE:
             digitalWrite(STOP_PIN, LOW);
-            if (debug_level) {Serial.print("STOP OFF");}
+            dprintln("STOP OFF");
           break;
        }
       }
