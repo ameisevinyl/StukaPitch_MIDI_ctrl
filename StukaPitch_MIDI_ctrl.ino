@@ -9,7 +9,6 @@
  * to be connected to Flokason StuKa Pitch98-13 breakout box
  * 
  * TODO: rewrite and use MIDI_NOTE : PIN function table
- * TODO: loop mode
  * GOAL: bidirectional communication with DAW plugin
  */ 
 
@@ -106,9 +105,9 @@ void loop() {
             digitalWrite(START_PIN,LOW);
             dprintln("MARK BETWEEN LOOP ON");
             digitalWrite(MARK_PIN, HIGH);
-            dprintln("MARK BETWEEN LOOP OFF");
             delay(LOOP_MARK_TIME); //move cutterhead forward certain time TODO: pitch optimize locked grooves for space effiency
             digitalWrite(MARK_PIN, LOW); //ready for next locked groove
+            dprintln("MARK BETWEEN LOOP OFF");
        }
       }
       
