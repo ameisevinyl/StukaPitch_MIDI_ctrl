@@ -55,7 +55,7 @@ void setup() {
 }
 
 //print debug messages on Serial output
-void dprintln(char str[]){
+void dprintln(const char str[]){
   if (debug_level) {
     Serial.print(str);
     Serial.print("\n");
