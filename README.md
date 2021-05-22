@@ -3,7 +3,7 @@ Arduino project for Pro Micro and other native USB processors to control Flokaso
 The microcontroller will act as a MIDI Device, basic function from the pitchbox are mapped to keys that can be controlled
 by your DAW.
 Especially for long LP mastercuts this becomes handy...
-It also has a automatic lockgroove function.
+It also has an automatic lockgroove function.
 
    
 Hardware costs: ~ 7 EUR    
