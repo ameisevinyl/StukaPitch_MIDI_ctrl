@@ -33,11 +33,14 @@ const uint8_t START_NOTE  = 0x11; //F-1
 const uint8_t STOP_NOTE   = 0x10; //E-1
 const uint8_t FAST_NOTE   = 0x0E; //D-1
 const uint8_t MARK_NOTE   = 0x0C; //C-1
-const uint8_t LOOP_NOTE   = 0x13; //G-1 starts the loop mode: start, wait one revolution, stop
-const uint8_t RESET_NOTE  = 0x15; //A-1 (see also: https://audeonic.com/cgi-bin/midi_table.pl)
+const uint8_t RESET_NOTE  = 0x13; //G-1 (see also: https://audeonic.com/cgi-bin/midi_table.pl)
+const uint8_t LOOP33_NOTE   = 0x15; //A-1 starts the loop mode at 33 RPM: start, wait one revolution, stop
+const uint8_t LOOP45_NOTE   = 0x17; //B-1 starts the loop mode at 45 RPM: start, wait one revolution, stop
 
 //adjust to your actual hardware: MS_PER_REVOLUTION - TIME_TO_LOWER_HEAD + TIME_TO_LIFT_HEAD 
 const int REVOLUTION_TIME_33 = 1800; //1800 ms = 33,33 RPM
+const int REVOLUTION_TIME_45 = 1333; //1333 ms = 45 RPM TODO: is this precise enough?
+
 const int LOOP_MARK_TIME = 1000; //move the cutterhead forward after cutting locked groove
 const int DEBOUNCE_TIME = 100; //how long to pull up pins for proper signal transmission to pitch
 
@@ -106,8 +109,8 @@ void loop() {
             digitalWrite(RESET_PIN, HIGH);
             dprintln("RESET ON");
           break;
-          case LOOP_NOTE:
-            dprintln("LOOP START");
+          case LOOP33_NOTE:
+            dprintln("33 RPM LOOP START");
             digitalWrite(START_PIN,HIGH); //start cutting
             delay(DEBOUNCE_TIME);
             digitalWrite(START_PIN,LOW);
@@ -126,6 +129,28 @@ void loop() {
             delay(LOOP_MARK_TIME); //move cutterhead forward certain time TODO: pitch optimize locked grooves for space effiency
             digitalWrite(MARK_PIN, LOW); //ready for next locked groove
             dprintln("MARK BETWEEN LOOP OFF");
+          break;
+          case LOOP45_NOTE:
+            dprintln("45 RPM LOOP START");
+            digitalWrite(START_PIN,HIGH); //start cutting
+            delay(DEBOUNCE_TIME);
+            digitalWrite(START_PIN,LOW);
+            
+            delay(REVOLUTION_TIME_45); //wait for one revolution 33RPM
+            
+            dprintln("LOOP STOP");
+            digitalWrite(STOP_PIN,HIGH); //start cutting
+            delay(DEBOUNCE_TIME);
+            digitalWrite(STOP_PIN,LOW);
+            
+            delay(10*DEBOUNCE_TIME); //waiting for pitch to stop cutting, and before next command
+            
+            dprintln("MARK BETWEEN LOOP ON");
+            digitalWrite(MARK_PIN, HIGH);
+            delay(LOOP_MARK_TIME); //move cutterhead forward certain time TODO: pitch optimize locked grooves for space effiency
+            digitalWrite(MARK_PIN, LOW); //ready for next locked groove
+            dprintln("MARK BETWEEN LOOP OFF");
+          break;
        }
       }
       
