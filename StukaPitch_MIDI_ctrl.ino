@@ -9,6 +9,7 @@
  * to be connected to Flokason StuKa Pitch98-13 breakout box
  * 
  * TODO: rewrite and use MIDI_NOTE : PIN function table
+ * TODO: remove debug code...
  * GOAL: bidirectional communication with DAW plugin
  */ 
 
@@ -24,6 +25,7 @@ const int START_PIN = 9;
 const int STOP_PIN = 8;
 const int FAST_PIN = 7;
 const int MARK_PIN = 6;
+const int RESET_PIN = 5;
 
 const uint8_t MIDI_IN_CHN = 0x00; //1 - hex listening on this channel btw: 0:15 = 1:16 in midi world
 
@@ -32,6 +34,7 @@ const uint8_t STOP_NOTE   = 0x10; //E-1
 const uint8_t FAST_NOTE   = 0x0E; //D-1
 const uint8_t MARK_NOTE   = 0x0C; //C-1
 const uint8_t LOOP_NOTE   = 0x13; //G-1 starts the loop mode: start, wait one revolution, stop
+const uint8_t RESET_NOTE  = 0x15; //A-1 (see also: https://audeonic.com/cgi-bin/midi_table.pl)
 
 //adjust to your actual hardware: MS_PER_REVOLUTION - TIME_TO_LOWER_HEAD + TIME_TO_LIFT_HEAD 
 const int REVOLUTION_TIME_33 = 1800; //1800 ms = 33,33 RPM
@@ -44,12 +47,13 @@ void setup() {
   pinMode(STOP_PIN, OUTPUT);
   pinMode(FAST_PIN, OUTPUT);
   pinMode(MARK_PIN, OUTPUT);
+  pinMode(RESET_PIN, OUTPUT);
 
   digitalWrite(START_PIN, LOW);
   digitalWrite(STOP_PIN, LOW);
   digitalWrite(FAST_PIN, LOW);
   digitalWrite(MARK_PIN, LOW);
-  
+  digitalWrite(RESET_PIN, LOW);
   
   Serial.begin(115200);
 }
@@ -98,6 +102,10 @@ void loop() {
             digitalWrite(STOP_PIN, HIGH);
             dprintln("STOP ON");
           break;
+          case RESET_NOTE:
+            digitalWrite(RESET_PIN, HIGH);
+            dprintln("RESET ON");
+          break;
           case LOOP_NOTE:
             dprintln("LOOP START");
             digitalWrite(START_PIN,HIGH); //start cutting
@@ -139,6 +147,10 @@ void loop() {
           case STOP_NOTE:
             digitalWrite(STOP_PIN, LOW);
             dprintln("STOP OFF");
+          break;
+          case RESET_NOTE:
+            digitalWrite(RESET_PIN, LOW);
+            dprintln("RESET OFF");
           break;
        }
       }
