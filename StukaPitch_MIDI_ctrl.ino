@@ -36,6 +36,7 @@ const uint8_t LOOP_NOTE   = 0x13; //G-1 starts the loop mode: start, wait one re
 //adjust to your actual hardware: MS_PER_REVOLUTION - TIME_TO_LOWER_HEAD + TIME_TO_LIFT_HEAD 
 const int REVOLUTION_TIME_33 = 1800; //1800 ms = 33,33 RPM
 const int LOOP_MARK_TIME = 1000; //move the cutterhead forward after cutting locked groove
+const int DEBOUNCE_TIME = 100; //how long to pull up pins for proper signal transmission to pitch
 
 void setup() {
   
@@ -100,9 +101,18 @@ void loop() {
           case LOOP_NOTE:
             dprintln("LOOP START");
             digitalWrite(START_PIN,HIGH); //start cutting
-            delay(REVOLUTION_TIME_33); //wait for one revolution 33RPM
-            dprintln("LOOP STOP");
+            delay(DEBOUNCE_TIME);
             digitalWrite(START_PIN,LOW);
+            
+            delay(REVOLUTION_TIME_33); //wait for one revolution 33RPM
+            
+            dprintln("LOOP STOP");
+            digitalWrite(STOP_PIN,HIGH); //start cutting
+            delay(DEBOUNCE_TIME);
+            digitalWrite(STOP_PIN,LOW);
+            
+            delay(10*DEBOUNCE_TIME); //waiting for pitch to stop cutting, and before next command
+            
             dprintln("MARK BETWEEN LOOP ON");
             digitalWrite(MARK_PIN, HIGH);
             delay(LOOP_MARK_TIME); //move cutterhead forward certain time TODO: pitch optimize locked grooves for space effiency
