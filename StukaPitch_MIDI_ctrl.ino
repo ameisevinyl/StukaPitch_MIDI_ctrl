@@ -21,11 +21,11 @@ const int RX_LED = 17;
 const int debug_level = 1; //Serial debug output is switched on if >0
 
 //Pitch Connectors
-const int START_PIN = 9;
-const int STOP_PIN = 8;
-const int FAST_PIN = 7;
-const int MARK_PIN = 6;
-const int RESET_PIN = 5;
+const int MARK_PIN = 2;
+const int FAST_PIN = 3;
+const int STOP_PIN = 4;
+const int START_PIN = 5;
+const int RESET_PIN = 6; //not available with 4x optocoupler board...
 
 const uint8_t MIDI_IN_CHN = 0x00; //1 - hex listening on this channel btw: 0:15 = 1:16 in midi world
 
