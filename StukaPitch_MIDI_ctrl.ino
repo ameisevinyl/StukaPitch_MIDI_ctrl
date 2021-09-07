@@ -15,10 +15,13 @@
 
 #include "MIDIUSB.h"
 
+#define ON LOW
+#define OFF HIGH
+
 const int TX_LED = 30;
 const int RX_LED = 17;
 
-const int debug_level = 1; //Serial debug output is switched on if >0
+const int debug_level = 0; //Serial debug output is switched on if >0
 
 //Pitch Connectors
 const int MARK_PIN = 2;
@@ -37,7 +40,7 @@ const uint8_t RESET_NOTE  = 0x13; //G-1 (see also: https://audeonic.com/cgi-bin/
 const uint8_t LOOP33_NOTE   = 0x15; //A-1 starts the loop mode at 33 RPM: start, wait one revolution, stop
 const uint8_t LOOP45_NOTE   = 0x17; //B-1 starts the loop mode at 45 RPM: start, wait one revolution, stop
 
-//adjust to your actual hardware: MS_PER_REVOLUTION - TIME_TO_LOWER_HEAD + TIME_TO_LIFT_HEAD 
+//adjust to your actual hardware: MS_PER_REVOLUTION - TIME_TO_OFFER_HEAD + TIME_TO_LIFT_HEAD 
 const int REVOLUTION_TIME_33 = 1800; //1800 ms = 33,33 RPM
 const int REVOLUTION_TIME_45 = 1333; //1333 ms = 45 RPM TODO: is this precise enough?
 
@@ -52,11 +55,11 @@ void setup() {
   pinMode(MARK_PIN, OUTPUT);
   pinMode(RESET_PIN, OUTPUT);
 
-  digitalWrite(START_PIN, LOW);
-  digitalWrite(STOP_PIN, LOW);
-  digitalWrite(FAST_PIN, LOW);
-  digitalWrite(MARK_PIN, LOW);
-  digitalWrite(RESET_PIN, LOW);
+  digitalWrite(START_PIN, OFF);
+  digitalWrite(STOP_PIN, OFF);
+  digitalWrite(FAST_PIN, OFF);
+  digitalWrite(MARK_PIN, OFF);
+  digitalWrite(RESET_PIN, OFF);
   
   Serial.begin(115200);
 }
@@ -90,65 +93,65 @@ void loop() {
         //we got a note on event on our midi chn
         switch (rx.byte2) {
           case MARK_NOTE:
-            digitalWrite(MARK_PIN, HIGH);
+            digitalWrite(MARK_PIN, ON);
             dprintln("MARK ON");
           break;
           case START_NOTE:
-            digitalWrite(START_PIN, HIGH);
+            digitalWrite(START_PIN, ON);
             dprintln("START ON");
           break;
           case FAST_NOTE:
-            digitalWrite(FAST_PIN, HIGH);
+            digitalWrite(FAST_PIN, ON);
             dprintln("FAST ON");
           break;
           case STOP_NOTE:
-            digitalWrite(STOP_PIN, HIGH);
+            digitalWrite(STOP_PIN, ON);
             dprintln("STOP ON");
           break;
           case RESET_NOTE:
-            digitalWrite(RESET_PIN, HIGH);
+            digitalWrite(RESET_PIN, ON);
             dprintln("RESET ON");
           break;
           case LOOP33_NOTE:
             dprintln("33 RPM LOOP START");
-            digitalWrite(START_PIN,HIGH); //start cutting
+            digitalWrite(START_PIN,ON); //start cutting
             delay(DEBOUNCE_TIME);
-            digitalWrite(START_PIN,LOW);
+            digitalWrite(START_PIN,OFF);
             
             delay(REVOLUTION_TIME_33); //wait for one revolution 33RPM
             
             dprintln("LOOP STOP");
-            digitalWrite(STOP_PIN,HIGH); //start cutting
+            digitalWrite(STOP_PIN,ON); //start cutting
             delay(DEBOUNCE_TIME);
-            digitalWrite(STOP_PIN,LOW);
+            digitalWrite(STOP_PIN,OFF);
             
             delay(10*DEBOUNCE_TIME); //waiting for pitch to stop cutting, and before next command
             
             dprintln("MARK BETWEEN LOOP ON");
-            digitalWrite(MARK_PIN, HIGH);
+            digitalWrite(MARK_PIN, ON);
             delay(LOOP_MARK_TIME); //move cutterhead forward certain time TODO: pitch optimize locked grooves for space effiency
-            digitalWrite(MARK_PIN, LOW); //ready for next locked groove
+            digitalWrite(MARK_PIN, OFF); //ready for next locked groove
             dprintln("MARK BETWEEN LOOP OFF");
           break;
           case LOOP45_NOTE:
             dprintln("45 RPM LOOP START");
-            digitalWrite(START_PIN,HIGH); //start cutting
+            digitalWrite(START_PIN,ON); //start cutting
             delay(DEBOUNCE_TIME);
-            digitalWrite(START_PIN,LOW);
+            digitalWrite(START_PIN,OFF);
             
             delay(REVOLUTION_TIME_45); //wait for one revolution 33RPM
             
             dprintln("LOOP STOP");
-            digitalWrite(STOP_PIN,HIGH); //start cutting
+            digitalWrite(STOP_PIN,ON); //start cutting
             delay(DEBOUNCE_TIME);
-            digitalWrite(STOP_PIN,LOW);
+            digitalWrite(STOP_PIN,OFF);
             
             delay(10*DEBOUNCE_TIME); //waiting for pitch to stop cutting, and before next command
             
             dprintln("MARK BETWEEN LOOP ON");
-            digitalWrite(MARK_PIN, HIGH);
+            digitalWrite(MARK_PIN, ON);
             delay(LOOP_MARK_TIME); //move cutterhead forward certain time TODO: pitch optimize locked grooves for space effiency
-            digitalWrite(MARK_PIN, LOW); //ready for next locked groove
+            digitalWrite(MARK_PIN, OFF); //ready for next locked groove
             dprintln("MARK BETWEEN LOOP OFF");
           break;
        }
@@ -158,23 +161,23 @@ void loop() {
         //we got a note on event on our midi chn
         switch (rx.byte2) {
           case MARK_NOTE:
-            digitalWrite(MARK_PIN, LOW);
+            digitalWrite(MARK_PIN, OFF);
             dprintln("MARK OFF");
           break;
           case START_NOTE:
-            digitalWrite(START_PIN, LOW);
+            digitalWrite(START_PIN, OFF);
             dprintln("START OFF");
           break;
           case FAST_NOTE:
-            digitalWrite(FAST_PIN, LOW);
+            digitalWrite(FAST_PIN, OFF);
             dprintln("FAST OFF");
           break;
           case STOP_NOTE:
-            digitalWrite(STOP_PIN, LOW);
+            digitalWrite(STOP_PIN, OFF);
             dprintln("STOP OFF");
           break;
           case RESET_NOTE:
-            digitalWrite(RESET_PIN, LOW);
+            digitalWrite(RESET_PIN, OFF);
             dprintln("RESET OFF");
           break;
        }
