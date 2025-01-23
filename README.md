@@ -8,5 +8,7 @@ It also has an automatic lockgroove function.
    
 Hardware costs: ~ 7 EUR    
 https://de.aliexpress.com/item/32768308647.html  
-https://de.aliexpress.com/item/32944876416.html   
+https://de.aliexpress.com/item/1005006693789123.html
+
+
 
